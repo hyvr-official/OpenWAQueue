@@ -1,7 +1,9 @@
 package store
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
 	"os"
 	"path/filepath"
 	"strings"
@@ -152,6 +154,21 @@ func (s *Store) Delete(id int64) error {
 	return err
 }
 
+func (s *Store) Retry(id int64) error {
+	_, err := s.db.Exec(
+		`UPDATE queue SET status = 'pending', response_status = 0, response_body = '', error = '', processed_at = 0 WHERE id = ? AND status = 'failed'`,
+		id,
+	)
+	return err
+}
+
+func (s *Store) RetryFailed() error {
+	_, err := s.db.Exec(
+		`UPDATE queue SET status = 'pending', response_status = 0, response_body = '', error = '', processed_at = 0 WHERE status = 'failed'`,
+	)
+	return err
+}
+
 func (s *Store) Clear() error {
 	_, err := s.db.Exec(`DELETE FROM queue WHERE status != 'processing'`)
 	return err
@@ -272,6 +289,36 @@ func (s *Store) PasswordHash() string {
 
 func (s *Store) SetPasswordHash(v string) error {
 	return s.SetSetting("admin_password_hash", v)
+}
+
+func generateQueueAPIKey() (string, error) {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return "owq_" + hex.EncodeToString(b), nil
+}
+
+func (s *Store) QueueAPIKey() string {
+	return s.GetSetting("queue_api_key", "")
+}
+
+func (s *Store) EnsureQueueAPIKey() (string, error) {
+	if v := s.QueueAPIKey(); v != "" {
+		return v, nil
+	}
+	return s.RegenerateQueueAPIKey()
+}
+
+func (s *Store) RegenerateQueueAPIKey() (string, error) {
+	key, err := generateQueueAPIKey()
+	if err != nil {
+		return "", err
+	}
+	if err := s.SetSetting("queue_api_key", key); err != nil {
+		return "", err
+	}
+	return key, nil
 }
 
 func (s *Store) SetOpenWABaseURL(v string) error {

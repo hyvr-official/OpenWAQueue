@@ -81,7 +81,7 @@ func (w *Worker) process(ctx context.Context, item *store.Item) {
 		w.finish(item.ID, store.StatusFailed, 0, "", "OpenWA base URL is not configured")
 		return
 	}
-	target := baseURL + "/" + item.Path
+	target := strings.TrimSuffix(baseURL, "/api") + "/api/" + item.Path
 	if item.Query != "" {
 		target += "?" + item.Query
 	}

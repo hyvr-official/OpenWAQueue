@@ -32,6 +32,12 @@ func main() {
 	}
 	defer db.Close()
 
+	queueKey, err := db.EnsureQueueAPIKey()
+	if err != nil {
+		log.Fatalf("queue api key: %v", err)
+	}
+	log.Printf("Queue API key (send as X-Queue-API-Key header): %s", queueKey)
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 

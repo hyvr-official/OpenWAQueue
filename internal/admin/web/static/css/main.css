@@ -151,38 +151,6 @@ input::placeholder{
     overflow: hidden;
 }
 
-/*-- logo --*/
-
-.aura-logo{
-    display: block;
-    height: 15px;
-    width: auto;
-    margin-left: 7px;
-}
-
-.aura-logo-lg{
-	height: 30px;
-	margin: 0 auto;
-}
-
-.aura-logo-icon{
-	display: inline-block;
-	height: 20px;
-	width: auto;
-}
-
-.aura-logo-icon.loading{
-    animation: snapRotate 1s steps(1, end) infinite;
-}
-
-@keyframes snapRotate {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(90deg); }
-    50% { transform: rotate(180deg); }
-    75% { transform: rotate(270deg); }
-    100% { transform: rotate(360deg); }
-}
-
 /*-- utilities --*/
 
 .min-dvh-100 {

@@ -13,7 +13,7 @@ services:
 
   openwaqueue:
     image: alpine:latest
-    container_name: openwaqueue
+    container_name: openwa-queue
     restart: unless-stopped
     depends_on:
       - openwa
@@ -42,7 +42,7 @@ services:
       - openwaqueue-data:/app/data
       - data:/openwa-data:ro
     environment:
-      - OPENWA_BASE_URL=http://openwa:2785/api
+      - OPENWA_BASE_URL=http://openwa:2785
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - API_PORT=3000
       - ADMIN_PORT=5000

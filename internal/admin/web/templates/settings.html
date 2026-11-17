@@ -12,7 +12,7 @@
 {{define "content"}}
     <main class="container py-3">
         <div class="row">
-            <div class="col-12">
+            <div class="col-12 mb-3">
                 <div class="card">
                     <div class="card-header">Settings</div>
                     <div class="card-body">
@@ -35,15 +35,36 @@
                             <div class="row">
                                 <div class="col-12 col-md-6 mb-3">
                                     <label for="openwa-base-url" class="form-label">OpenWA base URL</label>
-                                    <input type="text" id="openwa-base-url" name="openwa_base_url" class="form-control" placeholder="http://localhost:2785/api" autocomplete="off" required>
+                                    <input type="text" id="openwa-base-url" name="openwa_base_url" class="form-control" placeholder="http://localhost:2785" autocomplete="off" required>
                                 </div>
                                 <div class="col-12 col-md-6 mb-3">
                                     <label for="openwa-api-key" class="form-label">OpenWA API key</label>
-                                    <input type="text" id="openwa-api-key" name="openwa_api_key" class="form-control" autocomplete="off">
+                                    <div class="input-group">
+                                        <input type="text" id="openwa-api-key" name="openwa_api_key" class="form-control" autocomplete="off">
+                                        <button type="button" id="copy-openwa-key" class="btn btn-outline-secondary">Copy</button>
+                                    </div>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary d-block ms-auto">Save</button>
+                            <button type="submit" class="btn btn-secondary d-block ms-auto">Save Settings</button>
                         </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">API Key</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <label for="queue-api-key" class="form-label">Queue API key</label>
+                                <div class="input-group">
+                                    <input type="text" id="queue-api-key" class="form-control" autocomplete="off" readonly>
+                                    <button type="button" id="copy-queue-key" class="btn btn-outline-secondary">Copy</button>
+                                    <button type="button" id="regenerate-queue-key" class="btn btn-outline-danger">Regenerate</button>
+                                </div>
+                                <div class="form-text">Clients must send this key in the <code>X-Queue-API-Key</code> header. Regenerating invalidates the old key.</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

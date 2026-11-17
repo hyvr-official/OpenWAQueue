@@ -4,6 +4,7 @@ $(function () {
     var $alert = $("#alert");
     var $baseUrl = $("#openwa-base-url");
     var $apiKey = $("#openwa-api-key");
+    var $queueKey = $("#queue-api-key");
 
     function zones() {
         var list = [];
@@ -41,6 +42,7 @@ $(function () {
         $format.val(data.time_format === "24" ? "24" : "12");
         $baseUrl.val(data.openwa_base_url || "");
         $apiKey.val(data.openwa_api_key || "");
+        $queueKey.val(data.queue_api_key || "");
         $select.select2({
             theme: "bootstrap-5",
             width: "100%",
@@ -57,6 +59,40 @@ $(function () {
         });
         updatePreview();
         setInterval(updatePreview, 1000);
+    });
+
+    function copyField($field) {
+        var value = $field.val();
+        if (navigator.clipboard && value) {
+            navigator.clipboard.writeText(value).then(function () {
+                showAlert("success", "API key copied.");
+            });
+        } else {
+            $field.trigger("select");
+            document.execCommand("copy");
+            showAlert("success", "API key copied.");
+        }
+    }
+
+    $("#copy-queue-key").on("click", function () {
+        copyField($queueKey);
+    });
+
+    $("#copy-openwa-key").on("click", function () {
+        copyField($apiKey);
+    });
+
+    $("#regenerate-queue-key").on("click", function () {
+        if (!window.confirm("Regenerate the queue API key? The current key will stop working immediately.")) {
+            return;
+        }
+        $.post("/admin/settings/regenerate-key").done(function (data) {
+            $queueKey.val(data.queue_api_key || "");
+            showAlert("success", "API key regenerated.");
+        }).fail(function (xhr) {
+            OWP.handleError(xhr);
+            showAlert("danger", "Failed to regenerate API key.");
+        });
     });
 
     $("#settings-form").on("submit", function (e) {

@@ -3,7 +3,8 @@
 
 ## :zap: Features
 
-- **Queue API**: send any OpenWA API request to OpenWAQueue and get an instant `202 Accepted` response with the queue ID.
+- **Queue API**: send OpenWA message requests (text, image, video, audio, document, location, contact, sticker, poll, bulk) to OpenWAQueue and get an instant `202 Accepted` response with the queue ID.
+- **API key protection**: only requests with a valid `X-Queue-API-Key` header are queued. The key is generated on first startup and can be viewed and regenerated in the admin panel.
 - **Throttled delivery**: requests are sent to OpenWA one by one in order, with a random 2 to 5 second delay between them.
 - **Admin panel**: see pending, done and failed requests along with the OpenWA response and status code.
 - **Queue controls**: pause and resume delivery, delete a single request or clear the whole queue.
@@ -77,7 +78,7 @@ sudo nano /opt/openwaqueue/.env
 ```
 
 ```env
-OPENWA_BASE_URL=http://127.0.0.1:2785/api
+OPENWA_BASE_URL=http://127.0.0.1:2785
 OPENWA_API_KEY=your-openwa-api-key
 ADMIN_PASSWORD=your-strong-password
 API_PORT=3000
@@ -124,7 +125,7 @@ To update, download the new release into `/opt/openwaqueue` again and restart th
 
 | Variable          | Description                                   | Default         |
 | ----------------- | --------------------------------------------- | --------------- |
-| `OPENWA_BASE_URL` | Base URL of the OpenWA API, including `/api`  |                 |
+| `OPENWA_BASE_URL` | Base URL of the OpenWA server, `/api` is added automatically |                 |
 | `OPENWA_API_KEY`  | OpenWA API key, sent as the `X-API-Key` header |                 |
 | `ADMIN_PASSWORD`  | Admin panel password                          |                 |
 | `API_PORT`        | Port of the queue API                         | `3000`          |
@@ -133,11 +134,37 @@ To update, download the new release into `/opt/openwaqueue` again and restart th
 
 ### Sending messages through the queue
 
-Use the queue API exactly like the OpenWA API, but on port `3000`. The method, path, query string and body are stored and forwarded to `OPENWA_BASE_URL` as they are. A leading `/api` in the path is optional.
+Use the queue API like the OpenWA API, but on port `3000`. The method, path, query string and body are stored and forwarded to `OPENWA_BASE_URL` as they are. A leading `/api` in the path is optional.
+
+#### Authentication (`X-Queue-API-Key`)
+
+Every request to the queue API must include the queue API key in the `X-Queue-API-Key` header.
+
+- The key is generated automatically on the first startup, saved in the SQLite database and printed in the console (`Queue API key (send as X-Queue-API-Key header): owq_...`).
+- You can view, copy and regenerate it in the admin panel under **Settings**. Regenerating it makes the old key stop working immediately.
+- A missing or wrong key returns `401 Unauthorized`.
+
+#### Allowed endpoints
+
+Only `POST` requests to the following endpoints are accepted. Any other method or path returns `404`.
+
+- `/api/sessions/:sessionId/messages/send-text`
+- `/api/sessions/:sessionId/messages/send-image`
+- `/api/sessions/:sessionId/messages/send-video`
+- `/api/sessions/:sessionId/messages/send-audio`
+- `/api/sessions/:sessionId/messages/send-document`
+- `/api/sessions/:sessionId/messages/send-location`
+- `/api/sessions/:sessionId/messages/send-contact`
+- `/api/sessions/:sessionId/messages/send-sticker`
+- `/api/sessions/:sessionId/messages/send-poll`
+- `/api/sessions/:sessionId/messages/send-bulk`
+
+#### Example
 
 ```bash
-curl -X POST http://127.0.0.1:3000/sessions/my-session/messages/send-text \
+curl -X POST http://127.0.0.1:3000/api/sessions/my-session/messages/send-text \
   -H "Content-Type: application/json" \
+  -H "X-Queue-API-Key: YOUR_QUEUE_API_KEY" \
   -d '{"chatId": "1234567890@c.us", "text": "Hello"}'
 ```
 

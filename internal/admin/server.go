@@ -54,8 +54,11 @@ func New(s *store.Store, cfg *config.Config) http.Handler {
 	mux.Handle("GET /static/", http.StripPrefix("/static/", noStore(http.FileServer(http.FS(static)))))
 	mux.HandleFunc("GET /admin/settings", srv.auth(srv.getSettings))
 	mux.HandleFunc("POST /admin/settings", srv.auth(srv.saveSettings))
+	mux.HandleFunc("POST /admin/settings/regenerate-key", srv.auth(srv.regenerateQueueKey))
 	mux.HandleFunc("GET /admin/queue", srv.auth(srv.queue))
 	mux.HandleFunc("POST /admin/queue/clear", srv.auth(srv.clearQueue))
+	mux.HandleFunc("POST /admin/queue/retry-failed", srv.auth(srv.retryFailed))
+	mux.HandleFunc("POST /admin/queue/{id}/retry", srv.auth(srv.retryItem))
 	mux.HandleFunc("DELETE /admin/queue/{id}", srv.auth(srv.deleteItem))
 	mux.HandleFunc("GET /admin/state", srv.auth(srv.state))
 	mux.HandleFunc("POST /admin/pause", srv.auth(srv.pause))
@@ -258,6 +261,7 @@ func (s *Server) setupPage(w http.ResponseWriter, r *http.Request) {
 
 func normalizeBaseURL(raw string) (string, bool) {
 	raw = strings.TrimRight(strings.TrimSpace(raw), "/")
+	raw = strings.TrimRight(strings.TrimSuffix(raw, "/api"), "/")
 	u, err := url.Parse(raw)
 	if err != nil || u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") {
 		return "", false
@@ -336,7 +340,17 @@ func (s *Server) getSettings(w http.ResponseWriter, r *http.Request) {
 		"time_format":     s.store.TimeFormat(),
 		"openwa_base_url": s.store.OpenWABaseURL(s.cfg.OpenWABaseURL),
 		"openwa_api_key":  s.store.OpenWAAPIKey(s.cfg.OpenWAAPIKey),
+		"queue_api_key":   s.store.QueueAPIKey(),
 	})
+}
+
+func (s *Server) regenerateQueueKey(w http.ResponseWriter, r *http.Request) {
+	key, err := s.store.RegenerateQueueAPIKey()
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"queue_api_key": key})
 }
 
 func (s *Server) saveSettings(w http.ResponseWriter, r *http.Request) {
@@ -411,6 +425,27 @@ func (s *Server) deleteItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := s.store.Delete(id); err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
+}
+
+func (s *Server) retryItem(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "invalid id"})
+		return
+	}
+	if err := s.store.Retry(id); err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
+}
+
+func (s *Server) retryFailed(w http.ResponseWriter, r *http.Request) {
+	if err := s.store.RetryFailed(); err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
 		return
 	}

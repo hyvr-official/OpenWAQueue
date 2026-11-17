@@ -44,6 +44,9 @@ $(function () {
             $tr.append($('<td class="d-none d-md-table-cell">').text(it.response_status || "-"));
             var $actions = $('<td class="actions">');
             $actions.append($('<button type="button" class="btn btn-outline-secondary btn-sm view">View</button>').attr("data-id", it.id));
+            if (it.status === "failed") {
+                $actions.append($('<button type="button" class="btn btn-outline-warning btn-sm retry" title="Retry"><i class="ri-restart-line"></i></button>').attr("data-id", it.id));
+            }
             if (it.status !== "processing") {
                 $actions.append($('<button type="button" class="btn btn-outline-danger btn-sm del" title="Delete"><i class="ri-delete-bin-line"></i></button>').attr("data-id", it.id));
             }
@@ -88,6 +91,7 @@ $(function () {
         $("#c-pending").text((c.pending || 0) + (c.processing || 0));
         $("#c-done").text(c.done || 0);
         $("#c-failed").text(c.failed || 0);
+        $("#retry-failed").prop("disabled", !c.failed);
         $("#state").toggleClass("text-bg-success", !paused).toggleClass("text-bg-warning", paused).html(paused ? "Paused" : "Running");
         $("#toggle").toggleClass("btn-warning", !paused).toggleClass("btn-success", paused).html(paused ? `<i class="ri-play-circle-line"></i><span class="d-none d-sm-inline"> Start queue</span>` : `<i class="ri-pause-circle-line"></i><span class="d-none d-sm-inline"> Pause queue</span>`);
     }
@@ -142,6 +146,15 @@ $(function () {
         confirmAction("Delete all queue items? Items currently processing are kept.", function () {
             $.post("/admin/queue/clear").done(load).fail(handleError);
         });
+    });
+
+    $("#retry-failed").on("click", function () {
+        $.post("/admin/queue/retry-failed").done(load).fail(handleError);
+    });
+
+    $("#rows").on("click", ".retry", function () {
+        var id = $(this).attr("data-id");
+        $.post("/admin/queue/" + encodeURIComponent(id) + "/retry").done(load).fail(handleError);
     });
 
     $("#rows").on("click", ".del", function () {
