@@ -1,4 +1,4 @@
-![OpenWAQueue logo](https://github.com/hyvr-official/OpenWAQueue/blob/master/art/cover.png?raw=true)
+![OpenWAQueue logo](https://raw.githubusercontent.com/hyvr-official/OpenWAQueue/refs/heads/main/art/cover.png)
 **OpenWAQueue** is a queue system for outbound messages, with an admin panel, built for [OpenWA](https://github.com/rmyndharis/openwa). Instead of calling OpenWA directly, your apps send requests to OpenWAQueue, which stores them and delivers them to OpenWA one at a time with a short random delay between each. It is written in Go and uses Bootstrap 5 and jQuery for the UI. It ships as a **single binary** with all templates and assets built in, stores its data in a local SQLite database and listens on port **3000** (queue API) and port **5000** (admin panel).
 
 ## :zap: Features
