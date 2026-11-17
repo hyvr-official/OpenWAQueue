@@ -6,7 +6,7 @@ IF EXIST dist (
 )
 
 SET GORUN=true
-goreleaser release --snapshot --clean
+goreleaser release --clean --skip=publish,validate
 
 for /F "delims=" %%a in ('echo prompt $E^| cmd') do set "ESC=%%a"
 

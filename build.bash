@@ -8,7 +8,7 @@ fi
 
 export GORUN=true
 
-goreleaser release --snapshot --clean
+goreleaser release --clean --skip=publish,validate
 
 ESC="\033"
 
