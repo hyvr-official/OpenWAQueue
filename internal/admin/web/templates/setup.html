@@ -1,0 +1,40 @@
+{{define "title"}}Setup{{end}}
+
+{{define "css"}}
+    <link href="/static/css/login.css" rel="stylesheet">
+{{end}}
+
+{{define "bodyclass"}}bg-body-tertiary d-flex align-items-center justify-content-center p-3{{end}}
+
+{{define "content"}}
+    <div class="card shadow w-100 login-card">
+        <div class="card-body p-4">
+            <h1 class="h4 mb-1">OpenWAQueue</h1>
+            <p class="text-secondary mb-3">Finish setting up the admin panel</p>
+            <div id="alert" class="alert alert-danger d-none" role="alert"></div>
+            <form id="setup-form" autocomplete="off">
+                {{if .NeedPassword}}
+                <div class="mb-3">
+                    <label for="password" class="form-label">Admin password</label>
+                    <input type="text" class="form-control" id="password" name="password" autocomplete="off" required autofocus>
+                </div>
+                {{end}}
+                {{if .NeedOpenWA}}
+                <div class="mb-3">
+                    <label for="openwa-base-url" class="form-label">OpenWA base URL</label>
+                    <input type="text" class="form-control" id="openwa-base-url" name="openwa_base_url" placeholder="http://localhost:2785/api" autocomplete="off" required>
+                </div>
+                <div class="mb-3">
+                    <label for="openwa-api-key" class="form-label">OpenWA API key</label>
+                    <input type="text" class="form-control" id="openwa-api-key" name="openwa_api_key" autocomplete="off">
+                </div>
+                {{end}}
+                <button type="submit" class="btn btn-secondary w-100">Save and continue</button>
+            </form>
+        </div>
+    </div>
+{{end}}
+
+{{define "scripts"}}
+    <script src="/static/js/setup.js"></script>
+{{end}}

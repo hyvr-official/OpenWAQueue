@@ -1,0 +1,58 @@
+{{define "title"}}Settings{{end}}
+
+{{define "head"}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+{{end}}
+
+{{define "css"}}
+    <link href="/static/css/settings.css" rel="stylesheet">
+{{end}}
+
+{{define "content"}}
+    <main class="container py-3">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">Settings</div>
+                    <div class="card-body">
+                        <form id="settings-form" autocomplete="off">
+                            <div id="alert" class="alert d-none" role="alert"></div>
+                            <div class="row">
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="timezone" class="form-label">Timezone</label>
+                                    <select id="timezone" name="timezone" autocomplete="off" class="form-select"></select>
+                                    <div class="form-text">Current time: <span id="preview">-</span></div>
+                                </div>
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="time-format" class="form-label">Time format</label>
+                                    <select id="time-format" name="time_format" autocomplete="off" class="form-select">
+                                        <option value="12">12-hour</option>
+                                        <option value="24">24-hour</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="openwa-base-url" class="form-label">OpenWA base URL</label>
+                                    <input type="text" id="openwa-base-url" name="openwa_base_url" class="form-control" placeholder="http://localhost:2785/api" autocomplete="off" required>
+                                </div>
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="openwa-api-key" class="form-label">OpenWA API key</label>
+                                    <input type="text" id="openwa-api-key" name="openwa_api_key" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary d-block ms-auto">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{{end}}
+
+{{define "scripts"}}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="/static/js/common.js"></script>
+    <script src="/static/js/settings.js"></script>
+{{end}}

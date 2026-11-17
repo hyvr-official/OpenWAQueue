@@ -1,0 +1,53 @@
+services:
+  openwa:
+    image: rmyndharis/openwa:latest
+    container_name: openwa-api
+    restart: unless-stopped
+    stop_grace_period: 75s
+    ports:
+      - "127.0.0.1:2785:2785"
+    volumes:
+      - data:/app/data
+    environment:
+      - NODE_ENV=production
+
+  openwaqueue:
+    image: alpine:latest
+    container_name: openwaqueue
+    restart: unless-stopped
+    depends_on:
+      - openwa
+    working_dir: /app
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        apk add --no-cache curl ca-certificates
+        case "$$(uname -m)" in
+          x86_64) ARCH=x86_64 ;;
+          aarch64|arm64) ARCH=arm64 ;;
+          *) echo "Unsupported architecture: $$(uname -m)"; exit 1 ;;
+        esac
+        curl -fsSL "https://github.com/hyvr-official/OpenWAQueue/releases/latest/download/openwaqueue_linux_$${ARCH}.tar.gz" | tar -xz -C /usr/local/bin openwaqueue
+        until [ -s /openwa-data/.api-key ]; do
+          echo "Waiting for /openwa-data/.api-key..."; sleep 2
+        done
+        export OPENWA_API_KEY="$$(tr -d '\r\n' < /openwa-data/.api-key)"
+        exec openwaqueue
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - openwaqueue-data:/app/data
+      - data:/openwa-data:ro
+    environment:
+      - OPENWA_BASE_URL=http://openwa:2785/api
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - API_PORT=3000
+      - ADMIN_PORT=5000
+      - DB_PATH=data/queue.db
+
+volumes:
+  data:
+  openwaqueue-data:

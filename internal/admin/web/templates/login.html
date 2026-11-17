@@ -1,0 +1,28 @@
+{{define "title"}}Login{{end}}
+
+{{define "css"}}
+    <link href="/static/css/login.css" rel="stylesheet">
+{{end}}
+
+{{define "bodyclass"}}bg-body-tertiary d-flex align-items-center justify-content-center p-3{{end}}
+
+{{define "content"}}
+    <div class="card shadow w-100 login-card">
+        <div class="card-body p-4">
+            <h1 class="h4 mb-1">OpenWAQueue</h1>
+            <p class="text-secondary mb-3">Sign in to the admin panel</p>
+            <div id="error" class="alert alert-danger d-none" role="alert">Incorrect password.</div>
+            <form method="post" action="/login" autocomplete="off">
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" required autofocus>
+                </div>
+                <button type="submit" class="btn btn-secondary w-100">Sign in</button>
+            </form>
+        </div>
+    </div>
+{{end}}
+
+{{define "scripts"}}
+    <script src="/static/js/login.js"></script>
+{{end}}
